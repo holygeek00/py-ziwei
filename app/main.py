@@ -30,9 +30,10 @@ if not os.path.exists(static_dir):
 
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+
 app.include_router(router, prefix="/api")
 
 
 @app.get("/")
 async def root():
-    return FileResponse(os.path.join(static_dir, "index.html"))
+    return {"message": "Zi Wei Dou Shu API is running", "status": "online"}
