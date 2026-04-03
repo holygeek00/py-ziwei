@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>紫微斗数 · 命理乾坤 | Zi Wei Dou Shu Premium</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+                        serif: ['Noto Serif SC', 'ui-serif', 'serif'],
+                    },
+                    colors: {
+                        gold: { 50: '#fdfaf2', 100: '#f9f1de', 200: '#f0dfbd', 300: '#e3c690', 400: '#d5aa61', 500: '#c9a66b', 600: '#b08d4f', 700: '#8e6d3c', 800: '#735834', 900: '#5f492e' },
+                        jade: { 50: '#f1f8f7', 100: '#d9eded', 200: '#b8dadd', 300: '#8bbec5', 400: '#5a9aa6', 500: '#3e7d8a', 600: '#326673', 700: '#2c545f', 800: '#284751', 900: '#253d45' },
+                        cinnabar: '#e74c3c'
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer components {
+            .palace-cell {
+                @apply bg-white border border-slate-100 p-2 flex flex-col transition-all duration-300 cursor-pointer select-none relative overflow-hidden;
+            }
+            .palace-cell:hover {
+                @apply scale-[1.02] shadow-2xl z-10 border-gold-400 ring-1 ring-gold-200;
+            }
+            .star-major {
+                @apply text-cinnabar font-bold leading-none text-xl font-serif writing-vertical-rl tracking-widest;
+            }
+            .star-minor {
+                @apply text-jade-700 font-semibold leading-tight text-sm font-serif writing-vertical-rl tracking-wide;
+            }
+            .mutagen-badge {
+                @apply text-[10px] px-1 py-0.5 rounded text-white font-bold writing-mode-horizontal-tb text-center mt-1 scale-90;
+            }
+            .btn-action {
+                @apply px-6 py-3 bg-gradient-to-br from-gold-500 to-gold-700 text-white font-bold rounded-lg shadow-lg hover:shadow-gold-200/50 hover:-translate-y-0.5 transition-all active:scale-95;
+            }
+            .glass-card {
+                @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+            }
+        }
+        
+        .writing-vertical-rl { writing-mode: vertical-rl; }
+        .writing-mode-horizontal-tb { writing-mode: horizontal-tb; }
+
+        .pos-4 { grid-column: 1; grid-row: 1; }
+        .pos-5 { grid-column: 2; grid-row: 1; }
+        .pos-6 { grid-column: 3; grid-row: 1; }
+        .pos-7 { grid-column: 4; grid-row: 1; }
+        .pos-8 { grid-column: 4; grid-row: 2; }
+        .pos-9 { grid-column: 4; grid-row: 3; }
+        .pos-10 { grid-column: 4; grid-row: 4; }
+        .pos-11 { grid-column: 3; grid-row: 4; }
+        .pos-0 { grid-column: 2; grid-row: 4; }
+        .pos-1 { grid-column: 1; grid-row: 4; }
+        .pos-2 { grid-column: 1; grid-row: 3; }
+        .pos-3 { grid-column: 1; grid-row: 2; }
+
+        .highlight-sf { @apply border-2 border-gold-500 bg-gold-50/50 !important; }
+        .highlight-op { @apply border-2 border-jade-500 bg-jade-50/30 !important; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800">
+
+<div id="loader" class="fixed inset-0 bg-white/60 backdrop-blur-sm z-[9999] hidden items-center justify-center">
+    <div class="w-12 h-12 border-4 border-gold-200 border-t-gold-600 rounded-full animate-spin"></div>
+</div>
+
+<div class="max-w-[1700px] mx-auto px-4 py-8">
+    <header class="text-center mb-10 space-y-2">
+        <h1 class="text-4xl font-black font-serif text-slate-900 tracking-[0.2em]">紫微斗数 · 命理大观</h1>
+        <p class="text-gold-600 font-bold tracking-[0.5em] text-xs uppercase">Premium Astrology Analytical Intelligence</p>
+    </header>
+
+    <div class="flex flex-col xl:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full xl:w-[380px] shrink-0 space-y-6">
+            <div class="glass-card rounded-2xl p-8 sticky top-8">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <span class="w-2 h-6 bg-gold-500 rounded-full"></span> 出生星历
+                </h3>
+                
+                <div class="space-y-5">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-500 uppercase">日期及类型</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="date_str" value="1990-1-1" class="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-gold-400 outline-none transition-all">
+                            <select id="date_type" class="w-24 bg-white border border-slate-200 rounded-xl px-3 outline-none focus:border-gold-500">
+                                <option value="solar">公历</option>
+                                <option value="lunar">农历</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-500 uppercase">时辰</label>
+                            <select id="time_index" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-gold-500">
+                                <option value="0">早子</option><option value="1">丑时</option><option value="2" selected>寅时</option>
+                                <option value="3">卯时</option><option value="4">辰时</option><option value="5">巳时</option>
+                                <option value="6">午时</option><option value="7">未时</option><option value="8">申时</option>
+                                <option value="9">酉时</option><option value="10">戌时</option><option value="11">亥时</option>
+                                <option value="12">晚子</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-500 uppercase">性别</label>
+                            <select id="gender" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-gold-500">
+                                <option value="男">男</option><option value="女">女</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn-action w-full mt-4" onclick="generateChart()">一键解析全盘</button>
+                    
+                    <div class="pt-6 border-t border-slate-100 space-y-4">
+                        <h4 class="text-sm font-bold text-slate-600">加载动态运限</h4>
+                        <input type="date" id="target_date" class="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-jade-200">
+                        <button onclick="getHoroscope()" id="horo-btn" disabled class="w-full py-3 border-2 border-jade-600 text-jade-700 font-bold rounded-xl hover:bg-jade-50 disabled:opacity-30 disabled:hover:bg-transparent transition-all">锁定流年轨迹</button>
+                    </div>
+                </div>
+
+                <!-- Personal Summary (Empty by default) -->
+                <div id="personal-preview" class="mt-8 hidden p-5 bg-gold-50/50 rounded-2xl border border-gold-100 space-y-3">
+                    <div id="p-sign" class="text-2xl font-black text-slate-800 font-serif"></div>
+                    <div id="p-basic" class="text-sm text-gold-700 font-medium"></div>
+                    <div id="p-extras" class="text-xs text-slate-500 leading-relaxed pt-2 border-t border-gold-200/30"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 space-y-8">
+            <div class="flex justify-center">
+                <div class="grid grid-cols-4 grid-rows-4 w-[900px] h-[900px] bg-slate-200 gap-px rounded-3xl overflow-hidden shadow-2xl border-[12px] border-white ring-1 ring-slate-200">
+                    <div class="col-start-2 col-end-4 row-start-2 row-end-4 bg-white flex flex-col items-center justify-center p-8 text-center" id="middle-area">
+                        <div class="space-y-4">
+                            <h2 class="text-3xl font-black font-serif text-slate-300">中宫大德</h2>
+                            <p class="text-slate-400 text-sm">请输入出生资料<br>以开启命盘万象</p>
+                        </div>
+                    </div>
+                    <!-- 12 Palaces -->
+                    <div class="palace-cell pos-0" data-idx="0" onclick="handlePalaceClick(0)"></div><div class="palace-cell pos-1" data-idx="1" onclick="handlePalaceClick(1)"></div>
+                    <div class="palace-cell pos-2" data-idx="2" onclick="handlePalaceClick(2)"></div><div class="palace-cell pos-3" data-idx="3" onclick="handlePalaceClick(3)"></div>
+                    <div class="palace-cell pos-4" data-idx="4" onclick="handlePalaceClick(4)"></div><div class="palace-cell pos-5" data-idx="5" onclick="handlePalaceClick(5)"></div>
+                    <div class="palace-cell pos-6" data-idx="6" onclick="handlePalaceClick(6)"></div><div class="palace-cell pos-7" data-idx="7" onclick="handlePalaceClick(7)"></div>
+                    <div class="palace-cell pos-8" data-idx="8" onclick="handlePalaceClick(8)"></div><div class="palace-cell pos-9" data-idx="9" onclick="handlePalaceClick(9)"></div>
+                    <div class="palace-cell pos-10" data-idx="10" onclick="handlePalaceClick(10)"></div><div class="palace-cell pos-11" data-idx="11" onclick="handlePalaceClick(11)"></div>
+                </div>
+            </div>
+
+            <!-- Analysis Tabs -->
+            <div id="analysis-section" class="hidden animate-fade-in">
+                <div class="flex gap-4 border-b border-slate-200 mb-6 overflow-x-auto pb-1">
+                    <button class="tab-btn active" data-tab="analysis">精准格局分析</button>
+                    <button class="tab-btn" data-tab="stars">全天星位表</button>
+                    <button class="tab-btn" data-tab="queries">接口/调试工具</button>
+                </div>
+                
+                <div id="tab-analysis" class="tab-panel active space-y-6">
+                    <div class="grid md:grid-cols-3 gap-6" id="analysis-cards"></div>
+                    <div id="palace-detail-card" class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hidden">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 id="det-palace-name" class="text-2xl font-bold text-slate-800"></h3>
+                                <p class="text-slate-500">此宫三方四正关系网络</p>
+                            </div>
+                            <button onclick="closeDetail()" class="text-slate-300 hover:text-slate-600">✕</button>
+                        </div>
+                        <div id="det-content" class="grid sm:grid-cols-4 gap-6"></div>
+                    </div>
+                </div>
+
+                <div id="tab-stars" class="tab-panel hidden">
+                    <div class="bg-white rounded-3xl p-6 shadow-sm overflow-hidden" id="full-stars-table"></div>
+                </div>
+
+                <div id="tab-queries" class="tab-panel hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100">
+                        <h4 class="font-bold mb-4">宫位属性检索</h4>
+                        <div class="flex gap-2">
+                            <input type="text" id="q-star-check" placeholder="星名" class="flex-1 border rounded-lg px-3">
+                            <button onclick="checkStar()" class="bg-slate-800 text-white px-4 py-2 rounded-lg">检索</button>
+                        </div>
+                        <div id="q-star-res" class="mt-4 text-sm font-medium"></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100">
+                        <h4 class="font-bold mb-4">天干四化快查</h4>
+                        <div class="flex gap-2">
+                            <select id="q-stem" class="flex-1 border rounded-lg px-3"><option value="甲">甲</option><option value="乙">乙</option><option value="丙">丙</option><option value="丁">丁</option><option value="戊">戊</option><option value="己">己</option><option value="庚">庚</option><option value="辛">辛</option><option value="壬">壬</option><option value="癸">癸</option></select>
+                            <button onclick="checkMutagen()" class="bg-slate-800 text-white px-4 py-2 rounded-lg">查询</button>
+                        </div>
+                        <div id="q-mutagen-res" class="mt-4 flex gap-2"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<style>
+    .tab-btn { @apply whitespace-nowrap px-6 py-3 font-bold text-slate-400 border-b-2 border-transparent transition-all; }
+    .tab-btn.active { @apply text-gold-600 border-gold-600; }
+    .animate-fade-in { animation: fadeIn 0.8s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<script>
+    let currentAstro = null;
+
+    async function apiPost(ep, data) {
+        document.getElementById('loader').style.display='flex';
+        try {
+            const r = await fetch(`/api${ep}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+            const res = await r.json();
+            if (!r.ok) throw new Error(res.detail || 'API Error');
+            return res;
+        } catch(e) { alert(e.message); return null; }
+        finally { document.getElementById('loader').style.display='none'; }
+    }
+
+    async function generateChart() {
+        const payload = {
+            date_str: document.getElementById('date_str').value,
+            time_index: parseInt(document.getElementById('time_index').value),
+            gender: document.getElementById('gender').value,
+            date_type: document.getElementById('date_type').value
+        };
+        const res = await apiPost('/paipan', payload);
+        if (res) {
+            currentAstro = res.astrolabe;
+            renderChart(currentAstro);
+            updateProfile(currentAstro);
+            document.getElementById('analysis-section').classList.remove('hidden');
+            document.getElementById('horo-btn').disabled = false;
+        }
+    }
+
+    function renderChart(astro) {
+        // Render Middle info
+        document.getElementById('middle-area').innerHTML = `
+            <div class="space-y-4 scale-110">
+                <h2 class="text-4xl font-black font-serif text-slate-900 tracking-widest">${astro.sign}</h2>
+                <div class="px-4 py-1 bg-gold-500 text-white font-bold rounded-full inline-block text-lg">${astro.zodiac} · ${astro.gender}</div>
+                <div class="text-slate-500 font-medium leading-relaxed">
+                    ${astro.chinese_date}<br>
+                    <span class="text-gold-700">${astro.five_elements_class}</span> · ${astro.soul}命${astro.body}身
+                </div>
+            </div>
+        `;
+
+        astro.palaces.forEach((palace, i) => {
+            const cell = document.querySelector(`.palace-cell[data-idx="${i}"]`);
+            if (!cell) return;
+
+            cell.innerHTML = `
+                <div class="flex justify-between text-[10px] text-slate-400 font-bold mb-1">
+                    <span>${palace.boshi12}神</span>
+                    <span>${palace.changsheng12}</span>
+                </div>
+                <div class="flex flex-1 gap-2.5 justify-center mt-1">
+                    <div class="stars-major flex flex-row-reverse gap-3 items-start writing-vertical-rl">
+                        ${palace.major_stars.map(s => `
+                            <div class="star-major">${s.name}
+                                ${s.mutagen ? `<div class="mutagen-badge ${getMutaColor(s.mutagen)}">${s.mutagen}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="stars-minor flex flex-row-reverse gap-1.5 items-start writing-vertical-rl">
+                        ${palace.minor_stars.map(s => `<div class="star-minor">${s.name}</div>`).join('')}
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-1 px-1 h-12 overflow-hidden mb-1 justify-center">
+                    ${palace.adjective_stars.map(s => `<span class="text-[9px] text-slate-400 font-medium">${s.name}</span>`).join('')}
+                </div>
+                <div class="mt-auto border-t border-slate-50 pt-1.5 flex justify-between items-end">
+                    <div class="text-[9px] text-slate-400 font-bold leading-tight">
+                        ${palace.decadal.range[0]}-${palace.decadal.range[1]}<br>${palace.heavenly_stem}${palace.earthly_branch}
+                    </div>
+                    <div class="text-center pb-0.5">
+                        <span class="text-gold-600 font-black text-sm">${palace.name}</span>
+                        ${palace.is_body_palace ? '<span class="text-jade-600 font-bold text-xs">身</span>' : ''}
+                    </div>
+                    <div class="text-[9px] text-slate-300 font-bold text-right leading-tight">
+                        ${palace.ages[0] || ''}<br>${palace.suiqian12}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function getMutaColor(m) {
+        return {'禄':'bg-cinnabar', '权':'bg-amber-500', '科':'bg-green-600', '忌':'bg-slate-700'}[m] || '';
+    }
+
+    function updateProfile(astro) {
+        const preview = document.getElementById('personal-preview');
+        preview.classList.remove('hidden');
+        document.getElementById('p-sign').innerText = astro.sign;
+        document.getElementById('p-basic').innerText = `${astro.lunar_date} / ${astro.gender} / ${astro.zodiac}`;
+        document.getElementById('p-extras').innerText = `命主${astro.soul} · 身主${astro.body} · ${astro.five_elements_class}`;
+        
+        // Analysis Tabs Summary
+        const cards = document.getElementById('analysis-cards');
+        const infos = [
+            ["命身格局", `${astro.soul}命/${astro.body}身`, "命宫定位与内在灵魂属性"],
+            ["历法参数", `${astro.chinese_date}`, "干支纪时对环境的影响"],
+            ["五行能量", `${astro.five_elements_class}`, "命造之气质与基本能量模式"]
+        ];
+        cards.innerHTML = infos.map(inf => `
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <div class="text-xs font-black text-gold-500 mb-1 uppercase tracking-widest">${inf[0]}</div>
+                <div class="text-xl font-bold text-slate-800 mb-2">${inf[1]}</div>
+                <div class="text-xs text-slate-400">${inf[2]}</div>
+            </div>
+        `).join('');
+    }
+
+    async function handlePalaceClick(idx) {
+        if (!currentAstro) return;
+        const pName = currentAstro.palaces[idx].name;
+        
+        // Visual highlights
+        document.querySelectorAll('.palace-cell').forEach(c => c.classList.remove('highlight-sf', 'highlight-op'));
+        
+        const res = await apiPost('/palace/surrounded', {
+            date_str: document.getElementById('date_str').value,
+            time_index: parseInt(document.getElementById('time_index').value),
+            gender: document.getElementById('gender').value,
+            palace: pName
+        });
+
+        if (res) {
+            // Apply highlights to grid
+            [res.target, res.wealth, res.career].forEach(p => {
+                document.querySelector(`.palace-cell[data-idx="${p.index}"]`).classList.add('highlight-sf');
+            });
+            document.querySelector(`.palace-cell[data-idx="${res.opposite.index}"]`).classList.add('highlight-op');
+
+            // Show Detail Card
+            const card = document.getElementById('palace-detail-card');
+            card.classList.remove('hidden');
+            document.getElementById('det-palace-name').innerText = pName;
+            
+            const renderP = (title, p) => `
+                <div class="bg-slate-50 p-4 rounded-2xl">
+                    <div class="text-[10px] font-bold text-slate-400 uppercase mb-2">${title}</div>
+                    <div class="text-lg font-bold text-slate-700">${p.name} <span class="text-gold-500 font-serif">${p.heavenly_stem}${p.earthly_branch}</span></div>
+                    <div class="mt-2 flex flex-wrap gap-1">
+                        ${p.major_stars.map(s => `<span class="text-xs text-cinnabar font-bold">${s.name}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('det-content').innerHTML = `
+                ${renderP('本宫', res.target)}
+                ${renderP('财帛位', res.wealth)}
+                ${renderP('官禄位', res.career)}
+                ${renderP('对宫/迁移', res.opposite)}
+            `;
+            
+            card.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    function closeDetail() {
+        document.getElementById('palace-detail-card').classList.add('hidden');
+        document.querySelectorAll('.palace-cell').forEach(c => c.classList.remove('highlight-sf', 'highlight-op'));
+    }
+
+    async function getHoroscope() {
+        const payload = {
+            date_str: document.getElementById('date_str').value,
+            time_index: parseInt(document.getElementById('time_index').value),
+            gender: document.getElementById('gender').value,
+            target_date: document.getElementById('target_date').value
+        };
+        const res = await apiPost('/horoscope', payload);
+        if (res) {
+            document.querySelectorAll('.palace-cell').forEach(c => c.classList.remove('ring-4', 'ring-jade-600', 'ring-offset-2'));
+            const cell = document.querySelector(`.palace-cell[data-idx="${res.yearly.index}"]`);
+            if (cell) cell.classList.add('ring-4', 'ring-jade-600', 'ring-offset-2');
+            
+            const msg = document.createElement('div');
+            msg.className = "fixed top-8 left-1/2 -translate-x-1/2 bg-jade-800 text-white px-8 py-3 rounded-full shadow-2xl z-[9999] animate-bounce font-bold";
+            msg.innerText = `锁定流年：${res.yearly.name}宫 （${res.yearly.heavenly_stem}${res.yearly.earthly_branch}年）`;
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        }
+    }
+
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+            btn.classList.add('active');
+            document.getElementById(`tab-${btn.dataset.tab}`).classList.remove('hidden');
+        });
+    });
+
+    // Helper functions for tabs
+    async function checkStar() {
+        const name = document.getElementById('q-star-check').value;
+        const res = await apiPost('/star/palace', {
+            date_str: document.getElementById('date_str').value,
+            time_index: parseInt(document.getElementById('time_index').value),
+            gender: document.getElementById('gender').value,
+            star_name: name
+        });
+        if (res) {
+            document.getElementById('q-star-res').innerHTML = `<span class="bg-gold-100 p-2 rounded">${name} 位于 <strong>${res.name}</strong> (${res.earthly_branch})</span>`;
+        }
+    }
+
+    async function checkMutagen() {
+        const stem = document.getElementById('q-stem').value;
+        const res = await apiPost('/mutagen/by_stem', { heavenly_stem: stem });
+        if (res) {
+            const map = { '禄':'lu', '权':'quan', '科':'ke', '忌':'ji' };
+            const labels = ['禄', '权', '科', '忌'];
+            document.getElementById('q-mutagen-res').innerHTML = labels.map(l => `
+                <div class="flex-1 p-3 rounded-xl border flex flex-col items-center">
+                    <div class="text-[10px] text-slate-400 font-bold mb-1">${l}</div>
+                    <div class="font-bold">${res[l]}</div>
+                </div>
+            `).join('');
+        }
+    }
+
+    document.getElementById('target_date').valueAsDate = new Date();
+</script>
+
+</body>
+</html>

@@ -3,6 +3,10 @@ FastAPI 应用入口
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
 from app.api.routes import router
 
 app = FastAPI(
@@ -19,9 +23,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 挂载静态文件
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if not os.path.exists(static_dir):
+    os.makedirs(static_dir)
+
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 app.include_router(router, prefix="/api")
 
 
 @app.get("/")
 async def root():
-    return {"message": "紫微斗数排盘 API", "version": "0.1.0"}
+    return FileResponse(os.path.join(static_dir, "index.html"))
