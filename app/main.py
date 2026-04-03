@@ -23,12 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 挂载静态文件
-static_dir = os.path.join(os.path.dirname(__file__), "static")
-if not os.path.exists(static_dir):
-    os.makedirs(static_dir)
 
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
 app.include_router(router, prefix="/api")
