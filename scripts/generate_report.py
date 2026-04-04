@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--target", type=str, help="目标分析日期 (YYYY-MM-DD), 默认为今天")
     parser.add_argument("--type", type=str, default="solar", choices=["solar", "lunar"], help="日期类型")
     parser.add_argument("--leap", action="store_true", help="是否闰月 (仅限农历)")
+    parser.add_argument("--lang", type=str, default="zh-CN", choices=["zh-CN", "zh-TW"], help="语言: zh-CN(简体) 或 zh-TW(繁体)")
 
     args = parser.parse_args()
 
@@ -41,7 +42,13 @@ def main():
         horoscope = get_horoscope_data(astrolabe, target_date)
         
         formatter = ReportFormatter(astrolabe, horoscope)
-        print(formatter.render())
+        report_content = formatter.render()
+        
+        if args.lang == "zh-TW":
+            import zhconv
+            report_content = zhconv.convert(report_content, 'zh-tw')
+            
+        print(report_content)
         
     except Exception as e:
         print(f"错误: {str(e)}", file=sys.stderr)

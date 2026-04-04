@@ -457,6 +457,7 @@ class ReportRequest(BaseModel):
     date_type: str = "solar"
     is_leap_month: bool = False
     target_date: str = ""
+    language: str = "zh-CN"
 
 @router.post("/report/generate")
 async def generate_report(req: ReportRequest):
@@ -477,7 +478,13 @@ async def generate_report(req: ReportRequest):
         formatter = ReportFormatter(astrolabe, h)
         report_content = formatter.render()
         
+        if req.language == "zh-TW":
+            import zhconv
+            report_content = zhconv.convert(report_content, 'zh-tw')
+        
         filename = f"紫微斗数报告_{req.date_str}.md"
+        if req.language == "zh-TW":
+            filename = f"紫微鬥數報告_{req.date_str}.md"
         # URL encode filename for header
         from urllib.parse import quote
         encoded_filename = quote(filename)
