@@ -33,9 +33,9 @@ app.include_router(router, prefix="/api")
 async def root():
     return {"message": "Zi Wei Dou Shu API is running", "status": "online"}
 
+from fastapi.responses import HTMLResponse
+from app.api.ui_html import INDEX_HTML
+
 @app.get("/report")
 async def report_page():
-    html_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../public/index.html"))
-    if os.path.exists(html_path):
-        return FileResponse(html_path)
-    return {"error": "UI file not found"}
+    return HTMLResponse(content=INDEX_HTML)

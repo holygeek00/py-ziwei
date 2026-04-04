@@ -11,6 +11,7 @@ Python 版紫微斗数排盘后端，移植自 [iztro](https://github.com/SylarL
 - 🏛️ **多流派** — 通行版本 + 中州派
 - 🔄 **运限计算** — 大限、小限、流年/流月/流日/流时及动态星耀
 - 🔍 **高级分析** — 三方四正、四化飞星、自化、星耀查询、亮度/四化判断
+- 📝 **AI 报告生成** — 提供用于喂给大模型分析的详细 Markdown 报告，自带 Web UI 一键生成下载
 - ⚡ **FastAPI** — 高性能异步 API，自带 Swagger 文档
 
 ## 🚀 快速开始
@@ -64,6 +65,19 @@ print(f"五行局: {astrolabe.five_elements_class}")
 for palace in astrolabe.palaces:
     stars = ", ".join(s.name for s in palace.major_stars)
     print(f"  {palace.heavenly_stem}{palace.earthly_branch} {palace.name}: {stars}")
+```
+
+### 5. 可视化 Web UI 生成 AI 分析报告
+
+启动 API 服务后，在浏览器访问 `http://localhost:8787/report` 即可打开报告生成页面。
+输入出生日期等信息，点击生成即可获取包含专业系统 Prompt 及排盘数据的详细 Markdown 文档，支持一键下载，非常适合直接发送给 ChatGPT / Claude 等大语言模型进行解读。
+
+### 6. 命令行生成报告
+
+你也可以使用自带的脚本直接在终端生成并保存：
+
+```bash
+python3 scripts/generate_report.py --date "2000-08-16" --time 2 --gender "女" > report.md
 ```
 
 ## 📋 API 参数说明
