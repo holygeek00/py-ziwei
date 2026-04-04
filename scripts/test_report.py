@@ -11,7 +11,7 @@ def run_test(date, time, gender, target):
         "--target", target
     ]
     print(f"Testing: {date} {time} {gender} for target {target}")
-    result = subprocess.run(cmd, capture_output=True, text=True, cwd="py-ziwei")
+    result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"FAILED: {result.stderr}")
         return False

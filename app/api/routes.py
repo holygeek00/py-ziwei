@@ -3,7 +3,7 @@ API 路由 — 全部排盘和分析接口
 """
 from __future__ import annotations
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
 
 from app.core.types import PaipanRequest, PaipanResponse, Astrolabe, Horoscope
@@ -24,6 +24,7 @@ from app.astro.analyzer import (
     star_with_brightness, star_with_mutagen,
     get_mutagens_by_heavenly_stem,
 )
+from app.astro.formatter import ReportFormatter
 
 router = APIRouter()
 
@@ -443,3 +444,51 @@ async def api_horoscope_surrounded_has_mutagen(req: HoroscopeMutagenRequest):
 @router.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+# ============================================================
+# 9. 紫微斗数报告生成
+# ============================================================
+
+class ReportRequest(BaseModel):
+    date_str: str
+    time_index: int
+    gender: str
+    date_type: str = "solar"
+    is_leap_month: bool = False
+    target_date: str = ""
+
+@router.post("/report/generate")
+async def generate_report(req: ReportRequest):
+    """生成紫微斗数详细分析报告(Markdown格式)"""
+    try:
+        paipan_req = PaipanRequest(
+            date_str=req.date_str, 
+            time_index=req.time_index, 
+            gender=req.gender,
+            date_type=req.date_type, 
+            is_leap_month=req.is_leap_month,
+        )
+        astrolabe = _get_or_create_astrolabe(paipan_req)
+        
+        target = req.target_date if req.target_date else None
+        h = get_horoscope_data(astrolabe, target)
+        
+        formatter = ReportFormatter(astrolabe, h)
+        report_content = formatter.render()
+        
+        filename = f"紫微斗数报告_{req.date_str}.md"
+        # URL encode filename for header
+        from urllib.parse import quote
+        encoded_filename = quote(filename)
+        
+        return Response(
+            content=report_content,
+            media_type="text/markdown; charset=utf-8",
+            headers={
+                "Content-Disposition": f"attachment; filename*=utf-8''{encoded_filename}"
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+

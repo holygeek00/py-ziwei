@@ -32,3 +32,10 @@ app.include_router(router, prefix="/api")
 @app.get("/")
 async def root():
     return {"message": "Zi Wei Dou Shu API is running", "status": "online"}
+
+@app.get("/report")
+async def report_page():
+    html_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../public/index.html"))
+    if os.path.exists(html_path):
+        return FileResponse(html_path)
+    return {"error": "UI file not found"}
