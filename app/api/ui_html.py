@@ -3,7 +3,7 @@ INDEX_HTML = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>紫微斗数分析报告生成器</title>
+    <title>紫微鬥數分析報告生成器</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -93,7 +93,7 @@ INDEX_HTML = """<!DOCTYPE html>
 <body>
 
 <div class="container">
-    <h1>紫微斗数分析报告</h1>
+    <h1>紫微鬥數分析報告</h1>
     <form id="reportForm">
         <div class="form-group">
             <label for="date_str">出生日期 (YYYY-MM-DD)</label>
@@ -101,26 +101,26 @@ INDEX_HTML = """<!DOCTYPE html>
         </div>
         
         <div class="form-group">
-            <label for="time_index">出生时辰</label>
+            <label for="time_index">出生時辰</label>
             <select id="time_index" name="time_index">
-                <option value="0">子时 (23:00 - 01:00)</option>
-                <option value="1">丑时 (01:00 - 03:00)</option>
-                <option value="2">寅时 (03:00 - 05:00)</option>
-                <option value="3">卯时 (05:00 - 07:00)</option>
-                <option value="4">辰时 (07:00 - 09:00)</option>
-                <option value="5">巳时 (09:00 - 11:00)</option>
-                <option value="6">午时 (11:00 - 13:00)</option>
-                <option value="7">未时 (13:00 - 15:00)</option>
-                <option value="8">申时 (15:00 - 17:00)</option>
-                <option value="9">酉时 (17:00 - 19:00)</option>
-                <option value="10">戌时 (19:00 - 21:00)</option>
-                <option value="11">亥时 (21:00 - 23:00)</option>
-                <option value="12">晚子时 (23:00 - 24:00)</option>
+                <option value="0">子時 (23:00 - 01:00)</option>
+                <option value="1">丑時 (01:00 - 03:00)</option>
+                <option value="2">寅時 (03:00 - 05:00)</option>
+                <option value="3">卯時 (05:00 - 07:00)</option>
+                <option value="4">辰時 (07:00 - 09:00)</option>
+                <option value="5">巳時 (09:00 - 11:00)</option>
+                <option value="6">午時 (11:00 - 13:00)</option>
+                <option value="7">未時 (13:00 - 15:00)</option>
+                <option value="8">申時 (15:00 - 17:00)</option>
+                <option value="9">酉時 (17:00 - 19:00)</option>
+                <option value="10">戌時 (19:00 - 21:00)</option>
+                <option value="11">亥時 (21:00 - 23:00)</option>
+                <option value="12">晚子時 (23:00 - 24:00)</option>
             </select>
         </div>
         
         <div class="form-group">
-            <label for="gender">性别</label>
+            <label for="gender">性別</label>
             <select id="gender" name="gender">
                 <option value="男">男</option>
                 <option value="女">女</option>
@@ -128,39 +128,39 @@ INDEX_HTML = """<!DOCTYPE html>
         </div>
         
         <div class="form-group">
-            <label for="date_type">历法</label>
+            <label for="date_type">曆法</label>
             <select id="date_type" name="date_type">
-                <option value="solar">公历 (阳历)</option>
-                <option value="lunar">农历 (阴历)</option>
+                <option value="solar">公曆 (陽曆)</option>
+                <option value="lunar">農曆 (陰曆)</option>
             </select>
         </div>
         
         <div class="form-group checkbox-group" id="leap_group" style="display: none;">
             <input type="checkbox" id="is_leap_month" name="is_leap_month">
-            <label for="is_leap_month" style="margin: 0;">是否为闰月</label>
+            <label for="is_leap_month" style="margin: 0;">是否為閏月</label>
         </div>
         
         <div class="form-group">
-            <label for="language">报告语言 (Language)</label>
+            <label for="language">報告語言 (Language)</label>
             <select id="language" name="language">
-                <option value="zh-CN">简体中文 (Simplified Chinese)</option>
-                <option value="zh-TW">繁体中文 (Traditional Chinese)</option>
+                <option value="zh-CN">簡體中文 (Simplified Chinese)</option>
+                <option value="zh-TW">繁體中文 (Traditional Chinese)</option>
             </select>
         </div>
         
         <div class="form-group">
-            <label for="target_date">目标分析日期（可选，默认今天）</label>
+            <label for="target_date">目標分析日期（可選，默認今天）</label>
             <input type="date" id="target_date" name="target_date">
         </div>
         
         <div class="button-group">
-            <button type="submit" id="generateBtn">生成分析报告</button>
-            <button type="button" id="downloadBtn" onclick="downloadMd()">💾 下载 Markdown 文件</button>
+            <button type="submit" id="generateBtn">生成分析報告</button>
+            <button type="button" id="downloadBtn" onclick="downloadMd()">💾 下載 Markdown 文件</button>
         </div>
     </form>
 
     <div class="preview-area" id="previewArea" style="display: none;">
-        <h3>📄 报告预览</h3>
+        <h3>📄 報告預覽</h3>
         <pre><code id="preview"></code></pre>
     </div>
 </div>
@@ -168,7 +168,7 @@ INDEX_HTML = """<!DOCTYPE html>
 <script>
     let markdownContent = "";
 
-    // 判断是否显示“闰月”勾选框
+    // 判斷是否顯示「閏月」勾選框
     document.getElementById("date_type").addEventListener("change", function(e) {
         if (e.target.value === "lunar") {
             document.getElementById("leap_group").style.display = "flex";
@@ -187,7 +187,7 @@ INDEX_HTML = """<!DOCTYPE html>
         
         const formData = new FormData(e.target);
         
-        // 转换请求数据
+        // 轉換請求數據
         const reqBody = {
             date_str: formData.get("date_str"),
             time_index: parseInt(formData.get("time_index")),
@@ -214,12 +214,12 @@ INDEX_HTML = """<!DOCTYPE html>
                 document.getElementById("downloadBtn").style.display = "block";
             } else {
                 const err = await res.json();
-                alert("生成失败: " + (err.detail || "未知错误"));
+                alert("生成失敗: " + (err.detail || "未知錯誤"));
             }
         } catch (error) {
-            alert("网络错误: " + error.message);
+            alert("網絡錯誤: " + error.message);
         } finally {
-            btn.innerText = "生成分析报告";
+            btn.innerText = "生成分析報告";
             btn.disabled = false;
         }
     });
