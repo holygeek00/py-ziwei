@@ -1,7 +1,7 @@
 from app.core.types import Astrolabe, Horoscope, Star, HoroscopeItem
 from app.core.calendar_utils import solar_to_lunar, lunar_to_solar
-from app.astro.horoscope import get_horoscope_data
-from app.astro.analyzer import get_surrounded_palaces, palace_mutaged_places, mutagens_to_stars, palace_has_stars
+from app.astro.horoscope import get_horoscope_data, horoscope_surrounded_palaces
+from app.astro.analyzer import get_surrounded_palaces, palace_mutaged_places, mutagens_to_stars, palace_has_stars, palace_is_empty
 
 class ReportFormatter:
     def __init__(self, astrolabe: Astrolabe, horoscope: Horoscope = None):
@@ -76,7 +76,8 @@ class ReportFormatter:
         self.log("│ │ ")
         for p in self.astrolabe.palaces:
             p_display_name = p.name if p.name.endswith("宫") else f"{p.name}宫"
-            self.log(f"│ ├{p_display_name}[{p.heavenly_stem}{p.earthly_branch}]")
+            is_empty_str = "(空宫)" if palace_is_empty(p) else ""
+            self.log(f"│ ├{p_display_name}[{p.heavenly_stem}{p.earthly_branch}]{is_empty_str}")
             
             # Stars
             if p.major_stars:
@@ -149,6 +150,20 @@ class ReportFormatter:
         if base_palace:
             p_name = base_palace.name if base_palace.name.endswith("宫") else f"{base_palace.name}宫"
             self.log(f"│ ├落入原局 : {p_name}")
+            
+        scope_map = {"大限": "decadal", "流年": "yearly", "流月": "monthly", "流日": "daily"}
+        scope = scope_map.get(label)
+        if scope:
+            try:
+                sp = horoscope_surrounded_palaces(self.astrolabe, self.horoscope, "命宫", scope)
+                if sp:
+                    sp_branches = []
+                    for tp in [sp.opposite, sp.wealth, sp.career]:
+                        if tp:
+                            sp_branches.append(f"{tp.name.replace('宫', '')}({tp.earthly_branch})")
+                    self.log(f"│ ├运限三方四正 : {', '.join(sp_branches)}")
+            except Exception:
+                pass
         
         # Show stars in the luck life palace
         if item.stars and len(item.stars) > item.index:
