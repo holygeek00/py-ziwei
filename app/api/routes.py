@@ -499,3 +499,80 @@ async def generate_report(req: ReportRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
+# ============================================================
+# 10. 星盘可视化数据接口
+# ============================================================
+
+@router.post("/astrolabe")
+async def get_astrolabe_data(req: ReportRequest):
+    """获取星盘可视化数据（用于前端展示十二宫位）"""
+    try:
+        paipan_req = PaipanRequest(
+            date_str=req.date_str, 
+            time_index=req.time_index, 
+            gender=req.gender,
+            date_type=req.date_type, 
+            is_leap_month=req.is_leap_month,
+        )
+        astrolabe = _get_or_create_astrolabe(paipan_req)
+        
+        # 转换语言
+        def convert_text(text: str) -> str:
+            if req.language == "zh-TW":
+                import zhconv
+                return zhconv.convert(text, 'zh-tw')
+            return text
+        
+        # 构建宫位数据
+        palaces_data = []
+        for palace in astrolabe.palaces:
+            # 收集主星
+            major_stars = []
+            for star in palace.major_stars:
+                star_name = convert_text(star.name)
+                if star.brightness:
+                    star_name += f" {convert_text(star.brightness)}"
+                major_stars.append(star_name)
+            
+            # 收集辅星
+            minor_stars = []
+            for star in palace.minor_stars:
+                star_name = convert_text(star.name)
+                if star.brightness:
+                    star_name += f" {convert_text(star.brightness)}"
+                minor_stars.append(star_name)
+            
+            # 收集四化
+            mutagens = []
+            for star in palace.major_stars + palace.minor_stars:
+                if star.mutagen:
+                    mutagens.append(f"{convert_text(star.name)}{convert_text(star.mutagen)}")
+            
+            palaces_data.append({
+                "name": convert_text(palace.name),
+                "earthlyBranch": convert_text(palace.earthly_branch),
+                "heavenlyStem": convert_text(palace.heavenly_stem),
+                "isBodyPalace": palace.is_body_palace,
+                "majorStars": major_stars,
+                "minorStars": minor_stars,
+                "mutagens": mutagens,
+                "decadalRange": f"{palace.decadal.range[0]}-{palace.decadal.range[1]}" if palace.decadal else "",
+            })
+        
+        return {
+            "solarDate": astrolabe.solar_date,
+            "lunarDate": convert_text(astrolabe.lunar_date),
+            "gender": convert_text(astrolabe.gender),
+            "timeRange": convert_text(astrolabe.time_range),
+            "chineseDate": convert_text(astrolabe.chinese_date),
+            "sign": convert_text(astrolabe.sign),
+            "zodiac": convert_text(astrolabe.zodiac),
+            "fiveElementsClass": convert_text(astrolabe.five_elements_class),
+            "soul": convert_text(astrolabe.soul),
+            "body": convert_text(astrolabe.body),
+            "palaces": palaces_data,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+

@@ -16,69 +16,74 @@ Python 版紫微斗数排盘后端，移植自 [iztro](https://github.com/SylarL
 
 ## 🚀 快速开始
 
-### 1. 安装
+### 本地开发
+
+#### 1. 安装
 
 ```bash
 # 克隆项目
 cd py-ziwei
 
 # 创建虚拟环境并安装
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -e .
 ```
 
-### 2. 启动 API 服务
+#### 2. 启动 API 服务
 
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8787
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-访问 http://localhost:8787/docs 查看交互式 API 文档。
+访问 http://localhost:8000/docs 查看交互式 API 文档。
 
-### 3. 调用排盘接口
+#### 3. 访问 Web 界面
+
+浏览器打开 http://localhost:8000/report 即可使用可视化排盘界面。
+
+### ☁️ Vercel 部署（推荐）
+
+#### 快速部署
 
 ```bash
-curl -X POST http://localhost:8787/api/paipan \
-  -H "Content-Type: application/json" \
-  -d '{
-    "date_str": "2000-8-16",
-    "time_index": 2,
-    "gender": "女"
-  }'
+# 安装 Vercel CLI（如果还没安装）
+npm install -g vercel
+
+# 登录 Vercel
+vercel login
+
+# 部署到预览环境
+vercel
+
+# 部署到生产环境
+vercel --prod
 ```
 
-### 4. 直接调用 Python
-
-```python
-from app.astro.astro import by_solar, by_lunar
-
-# 阳历排盘
-astrolabe = by_solar("2000-8-16", 2, "女")
-
-# 农历排盘
-astrolabe = by_lunar("2000-7-17", 2, "女")
-
-# 查看结果
-print(f"命宫: {astrolabe.earthly_branch_of_soul_palace}")
-print(f"五行局: {astrolabe.five_elements_class}")
-for palace in astrolabe.palaces:
-    stars = ", ".join(s.name for s in palace.major_stars)
-    print(f"  {palace.heavenly_stem}{palace.earthly_branch} {palace.name}: {stars}")
-```
-
-### 5. 可视化 Web UI 生成 AI 分析报告
-
-启动 API 服务后，在浏览器访问 `http://localhost:8787/report` 即可打开报告生成页面。
-输入出生日期等信息，点击生成即可获取包含专业系统 Prompt 及排盘数据的详细 Markdown 文档，支持一键下载，非常适合直接发送给 ChatGPT / Claude 等大语言模型进行解读。
-
-### 6. 命令行生成报告
-
-你也可以使用自带的脚本直接在终端生成并保存：
+或使用快捷脚本：
 
 ```bash
-python3 scripts/generate_report.py --date "2000-08-16" --time 2 --gender "女" > report.md
+# 部署到预览环境
+./deploy.sh
+
+# 部署到生产环境
+./deploy.sh prod
 ```
+
+#### 通过 Git 自动部署
+
+1. 将代码推送到 GitHub/GitLab/Bitbucket
+2. 访问 [Vercel Dashboard](https://vercel.com/dashboard)
+3. 点击 "Add New Project"
+4. 导入你的仓库
+5. Vercel 会自动检测配置并部署
+
+部署成功后访问：
+- 主页：`https://your-project.vercel.app/`
+- 排盘界面：`https://your-project.vercel.app/report`
+- API 文档：`https://your-project.vercel.app/docs`
+
+详细部署说明请查看 [DEPLOY.md](./DEPLOY.md)
 
 ## 📋 API 参数说明
 
