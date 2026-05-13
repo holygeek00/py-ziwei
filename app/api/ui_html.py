@@ -1,172 +1,708 @@
-INDEX_HTML = """<!DOCTYPE html>
+"""
+UI HTML 模板 - 紫微斗数排盘界面
+此文件包含完整的 HTML/CSS/JS 代码，用于 Vercel serverless 部署
+"""
+
+INDEX_HTML = """
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>紫微鬥數分析報告生成器</title>
+    <title>紫微斗数分析报告生成器 | Zi Wei Dou Shu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-gold: #d4af37;
+            --primary-gold-hover: #f1c40f;
+            --bg-dark: #0f0c29;
+            --bg-mid: #302b63;
+            --bg-light: #24243e;
+            --text-main: #f8f9fa;
+            --text-muted: #adb5bd;
+            --glass-bg: rgba(25, 25, 35, 0.6);
+            --glass-border: rgba(212, 175, 55, 0.2);
+            --input-bg: rgba(255, 255, 255, 0.05);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: 'Noto Serif SC', serif;
+            background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid), var(--bg-light));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 800px;
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"], input[type="date"], select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            min-height: 100vh;
             box-sizing: border-box;
         }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Ambient glowing orbs */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        body::before {
+            top: -100px;
+            left: -100px;
+            background: #8e2de2;
+        }
+        body::after {
+            bottom: -100px;
+            right: -100px;
+            background: #4a00e0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-gold);
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 32px;
+            letter-spacing: 2px;
+        }
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 14px;
+            letter-spacing: 1px;
+            font-family: -apple-system, sans-serif;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 400;
+            color: var(--text-muted);
+            font-family: -apple-system, sans-serif;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        input[type="text"], input[type="date"], select {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-main);
+            box-sizing: border-box;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+            appearance: none;
+        }
+        
+        /* Fix select dropdown color issues in some browsers */
+        select option {
+            background-color: var(--bg-mid);
+            color: var(--text-main);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-gold);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+
+        /* Color-scheme for date inputs */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) opacity(0.7);
+            cursor: pointer;
+        }
+
         .checkbox-group {
             display: flex;
             align-items: center;
+            background: var(--input-bg);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         input[type="checkbox"] {
-            margin-right: 10px;
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-gold);
+            cursor: pointer;
         }
+
         .button-group {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 35px;
         }
+
         button {
-            padding: 10px 20px;
+            flex: 1;
+            padding: 16px 24px;
             border: none;
-            border-radius: 4px;
-            background-color: #3498db;
-            color: white;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            font-family: -apple-system, sans-serif;
+            position: relative;
+            overflow: hidden;
         }
-        button:hover {
-            background-color: #2980b9;
+
+        #generateBtn {
+            background: linear-gradient(135deg, #d4af37 0%, #b5952f 100%);
+            color: #1a1a24;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
         }
+
+        #generateBtn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+            background: linear-gradient(135deg, #f1c40f 0%, #d4af37 100%);
+        }
+
+        #generateBtn:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
         #downloadBtn {
-            background-color: #2ecc71;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             display: none;
         }
+
         #downloadBtn:hover {
-            background-color: #27ae60;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
         }
+
         .preview-area {
-            margin-top: 30px;
-            border: 1px solid #eee;
-            background: #fafafa;
-            padding: 15px;
+            margin-top: 40px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--glass-border);
+            padding: 24px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .preview-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        .preview-area::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 4px;
-            max-height: 500px;
+        }
+        .preview-area::-webkit-scrollbar-thumb {
+            background: var(--primary-gold);
+            border-radius: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 12px 24px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-gold);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-gold);
+            border-bottom-color: var(--primary-gold);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 星盤樣式 */
+        .astrolabe-container {
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+
+        .astrolabe {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .astrolabe tr,
+        .astrolabe tr:nth-child(2n) {
+            background-color: transparent;
+        }
+
+        .astrolabe td {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.8), rgba(40, 40, 60, 0.8));
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            padding: 10px;
+            vertical-align: top;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .astrolabe td:hover {
+            background: linear-gradient(135deg, rgba(40, 40, 60, 0.9), rgba(50, 50, 70, 0.9));
+            border-color: var(--primary-gold);
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+        }
+
+        .astrolabe td.center-palace {
+            background: linear-gradient(135deg, rgba(15, 12, 41, 0.95), rgba(48, 43, 99, 0.95));
+            border: 3px solid var(--primary-gold);
+            box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .palace-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .palace-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-gold);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .palace-name.body-palace::after {
+            content: '⭐';
+            margin-left: 4px;
+            font-size: 10px;
+            color: #e74c3c;
+        }
+
+        .palace-decadal {
+            font-size: 10px;
+            color: #9b59b6;
+            font-weight: 600;
+            background: rgba(155, 89, 182, 0.2);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid rgba(155, 89, 182, 0.4);
+        }
+
+        .palace-branch {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .stars-section {
+            font-size: 10px;
+            line-height: 1.5;
+            color: var(--text-main);
+            max-height: 130px;
             overflow-y: auto;
         }
+
+        .stars-section::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .stars-section::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .stars-section::-webkit-scrollbar-thumb {
+            background: rgba(212, 175, 55, 0.5);
+            border-radius: 2px;
+        }
+
+        .star-group {
+            margin-bottom: 6px;
+        }
+
+        .star-group-title {
+            font-size: 9px;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .star-item {
+            display: inline-block;
+            margin: 2px 3px;
+            padding: 3px 7px;
+            background: rgba(212, 175, 55, 0.15);
+            border-radius: 4px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            font-size: 11px;
+            transition: all 0.2s ease;
+        }
+
+        .star-item:hover {
+            background: rgba(212, 175, 55, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.4);
+        }
+
+        .star-major {
+            color: #f1c40f;
+            font-weight: 700;
+            background: rgba(241, 196, 15, 0.2);
+            border-color: rgba(241, 196, 15, 0.5);
+            font-size: 12px;
+        }
+
+        .star-minor {
+            color: #3498db;
+            background: rgba(52, 152, 219, 0.15);
+            border-color: rgba(52, 152, 219, 0.4);
+        }
+
+        .star-adj {
+            color: #95a5a6;
+            background: rgba(149, 165, 166, 0.1);
+            border-color: rgba(149, 165, 166, 0.3);
+            font-size: 10px;
+        }
+
+        .star-mutagen {
+            background: rgba(231, 76, 60, 0.25);
+            border-color: #e74c3c;
+            color: #ff6b6b;
+            font-weight: 700;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .brightness-庙 { color: #ff6b6b; }
+        .brightness-旺 { color: #ffa502; }
+        .brightness-得 { color: #f1c40f; }
+        .brightness-利 { color: #2ecc71; }
+        .brightness-平 { color: #3498db; }
+        .brightness-不 { color: #95a5a6; }
+        .brightness-陷 { color: #7f8c8d; }
+
+        .center-info {
+            text-align: center;
+            color: var(--text-main);
+            line-height: 2;
+            padding: 20px;
+        }
+
+        .center-info h3 {
+            color: var(--primary-gold);
+            font-size: 20px;
+            margin-bottom: 15px;
+            letter-spacing: 4px;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+        }
+
+        .center-info p {
+            font-size: 13px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .center-info strong {
+            color: var(--primary-gold);
+            font-weight: 600;
+        }
+
+        .center-divider {
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-gold), transparent);
+            margin: 12px auto;
+        }
+
+        .preview-area h3 {
+            color: var(--primary-gold);
+            margin-top: 0;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: -apple-system, sans-serif;
+        }
+
         pre {
             white-space: pre-wrap;
             word-wrap: break-word;
             margin: 0;
-            font-family: "Courier New", Courier, monospace;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e2e8f0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Two columns layout for certain fields */
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .container {
+                padding: 25px 20px;
+            }
+            
+            .astrolabe td {
+                width: 90px;
+                height: 90px;
+                font-size: 8px;
+                padding: 5px;
+            }
+            
+            .palace-header {
+                flex-direction: column;
+                gap: 3px;
+                margin-bottom: 4px;
+            }
+            
+            .palace-name {
+                font-size: 11px;
+                margin-bottom: 0;
+            }
+            
+            .palace-decadal {
+                font-size: 8px;
+                padding: 1px 4px;
+            }
+            
+            .palace-branch {
+                font-size: 9px;
+                margin-bottom: 4px;
+            }
+            
+            .stars-section {
+                max-height: 60px;
+                font-size: 8px;
+            }
+            
+            .star-item {
+                font-size: 8px;
+                margin: 1px 2px;
+                padding: 2px 4px;
+            }
+            
+            .star-major {
+                font-size: 9px;
+            }
+            
+            .center-info {
+                padding: 10px;
+            }
+            
+            .center-info h3 {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            
+            .center-info p {
+                font-size: 9px;
+                margin: 4px 0;
+            }
+            
+            .center-divider {
+                margin: 6px auto;
+            }
+            
+            .tab-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>紫微鬥數分析報告</h1>
+    <h1>紫微鬥數</h1>
+    <p class="subtitle">PROFESSIONAL DESTINY ANALYSIS</p>
+    
     <form id="reportForm">
-        <div class="form-group">
-            <label for="date_str">出生日期 (YYYY-MM-DD)</label>
-            <input type="date" id="date_str" name="date_str" required>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="date_str">出生日期 (YYYY-MM-DD)</label>
+                <input type="date" id="date_str" name="date_str" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="time_index">出生時辰</label>
+                <select id="time_index" name="time_index">
+                    <option value="0">子時 (23:00 - 01:00)</option>
+                    <option value="1">丑時 (01:00 - 03:00)</option>
+                    <option value="2">寅時 (03:00 - 05:00)</option>
+                    <option value="3">卯時 (05:00 - 07:00)</option>
+                    <option value="4">辰時 (07:00 - 09:00)</option>
+                    <option value="5">巳時 (09:00 - 11:00)</option>
+                    <option value="6">午時 (11:00 - 13:00)</option>
+                    <option value="7">未時 (13:00 - 15:00)</option>
+                    <option value="8">申時 (15:00 - 17:00)</option>
+                    <option value="9">酉時 (17:00 - 19:00)</option>
+                    <option value="10">戌時 (19:00 - 21:00)</option>
+                    <option value="11">亥時 (21:00 - 23:00)</option>
+                    <option value="12">晚子時 (23:00 - 24:00)</option>
+                </select>
+            </div>
         </div>
         
-        <div class="form-group">
-            <label for="time_index">出生時辰</label>
-            <select id="time_index" name="time_index">
-                <option value="0">子時 (23:00 - 01:00)</option>
-                <option value="1">丑時 (01:00 - 03:00)</option>
-                <option value="2">寅時 (03:00 - 05:00)</option>
-                <option value="3">卯時 (05:00 - 07:00)</option>
-                <option value="4">辰時 (07:00 - 09:00)</option>
-                <option value="5">巳時 (09:00 - 11:00)</option>
-                <option value="6">午時 (11:00 - 13:00)</option>
-                <option value="7">未時 (13:00 - 15:00)</option>
-                <option value="8">申時 (15:00 - 17:00)</option>
-                <option value="9">酉時 (17:00 - 19:00)</option>
-                <option value="10">戌時 (19:00 - 21:00)</option>
-                <option value="11">亥時 (21:00 - 23:00)</option>
-                <option value="12">晚子時 (23:00 - 24:00)</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="gender">性別</label>
-            <select id="gender" name="gender">
-                <option value="男">男</option>
-                <option value="女">女</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="date_type">曆法</label>
-            <select id="date_type" name="date_type">
-                <option value="solar">公曆 (陽曆)</option>
-                <option value="lunar">農曆 (陰曆)</option>
-            </select>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="gender">性別</label>
+                <select id="gender" name="gender">
+                    <option value="男">男 (Male)</option>
+                    <option value="女">女 (Female)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="date_type">曆法</label>
+                <select id="date_type" name="date_type">
+                    <option value="solar">公曆 (陽曆)</option>
+                    <option value="lunar">農曆 (陰曆)</option>
+                </select>
+            </div>
         </div>
         
         <div class="form-group checkbox-group" id="leap_group" style="display: none;">
             <input type="checkbox" id="is_leap_month" name="is_leap_month">
-            <label for="is_leap_month" style="margin: 0;">是否為閏月</label>
+            <label for="is_leap_month" style="margin: 0; color: #fff; cursor: pointer;">此月為閏月 (Leap Month)</label>
         </div>
         
-        <div class="form-group">
-            <label for="language">報告語言 (Language)</label>
-            <select id="language" name="language">
-                <option value="zh-CN">簡體中文 (Simplified Chinese)</option>
-                <option value="zh-TW">繁體中文 (Traditional Chinese)</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="target_date">目標分析日期（可選，默認今天）</label>
-            <input type="date" id="target_date" name="target_date">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="language">報告語言</label>
+                <select id="language" name="language">
+                    <option value="zh-CN">簡體中文 (Simplified Chinese)</option>
+                    <option value="zh-TW">繁體中文 (Traditional Chinese)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="target_date">目標分析日期 (可選)</label>
+                <input type="date" id="target_date" name="target_date">
+            </div>
         </div>
         
         <div class="button-group">
-            <button type="submit" id="generateBtn">生成分析報告</button>
-            <button type="button" id="downloadBtn" onclick="downloadMd()">💾 下載 Markdown 文件</button>
+            <button type="submit" id="generateBtn">🔮 生成深度解析</button>
+            <button type="button" id="downloadBtn" onclick="downloadMd()">💾 儲存為 Markdown</button>
         </div>
     </form>
 
     <div class="preview-area" id="previewArea" style="display: none;">
-        <h3>📄 報告預覽</h3>
-        <pre><code id="preview"></code></pre>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('chart', event)">📊 星盤圖</button>
+            <button class="tab-btn" onclick="switchTab('text', event)">📝 文字解析</button>
+        </div>
+        
+        <div id="chartView" class="tab-content active">
+            <div id="astrolabe" class="astrolabe-container"></div>
+        </div>
+        
+        <div id="textView" class="tab-content">
+            <pre><code id="preview"></code></pre>
+        </div>
     </div>
 </div>
 
 <script>
     let markdownContent = "";
+    let astrolabeData = null;
 
     // 判斷是否顯示「閏月」勾選框
     document.getElementById("date_type").addEventListener("change", function(e) {
@@ -178,16 +714,173 @@ INDEX_HTML = """<!DOCTYPE html>
         }
     });
 
+    // 切換標籤頁
+    function switchTab(tabName, event) {
+        // 更新按鈕狀態
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        if (event && event.target) {
+            event.target.classList.add('active');
+        }
+
+        // 更新內容顯示
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(tabName + 'View').classList.add('active');
+    }
+
+    // 渲染星盤
+    function renderAstrolabe(data) {
+        console.log("開始渲染星盤，數據:", data);
+        const container = document.getElementById('astrolabe');
+        
+        if (!container) {
+            console.error("找不到 astrolabe 容器");
+            return;
+        }
+        
+        // 宮位順序：按照紫微斗數標準排列
+        // 4x4 網格，外圍12宮，中間為中宮
+        const palaceLayout = [
+            [4, 5, 6, 7],      // 巳、午、未、申
+            [3, -1, -1, 8],    // 辰、中宮、中宮、酉
+            [2, -1, -1, 9],    // 卯、中宮、中宮、戌
+            [1, 0, 11, 10]     // 寅、丑、子、亥
+        ];
+
+        const palaceNames = [
+            '命宮', '兄弟', '夫妻', '子女', '財帛', '疾厄',
+            '遷移', '交友', '官祿', '田宅', '福德', '父母'
+        ];
+
+        // 亮度顏色映射
+        function getBrightnessClass(brightness) {
+            const map = {
+                '庙': 'brightness-庙',
+                '旺': 'brightness-旺',
+                '得': 'brightness-得',
+                '利': 'brightness-利',
+                '平': 'brightness-平',
+                '不': 'brightness-不',
+                '陷': 'brightness-陷'
+            };
+            return map[brightness] || '';
+        }
+
+        // 解析星耀名稱和亮度
+        function parseStarName(starStr) {
+            const match = starStr.match(/^(.+?)\\s*([庙旺得利平不陷])$/);
+            if (match) {
+                return { name: match[1], brightness: match[2] };
+            }
+            return { name: starStr, brightness: null };
+        }
+
+        let html = '<table class="astrolabe">';
+        
+        for (let row = 0; row < 4; row++) {
+            html += '<tr>';
+            for (let col = 0; col < 4; col++) {
+                const palaceIndex = palaceLayout[row][col];
+                
+                if (palaceIndex === -1) {
+                    // 中宮
+                    if (row === 1 && col === 1) {
+                        html += `<td class="center-palace" rowspan="2" colspan="2">
+                            <div class="center-info">
+                                <h3>紫微斗數</h3>
+                                <div class="center-divider"></div>
+                                <p><strong>陽曆：</strong>${data.solarDate || '未知'}</p>
+                                <p><strong>農曆：</strong>${data.lunarDate || '未知'}</p>
+                                <p><strong>干支：</strong>${data.chineseDate || '未知'}</p>
+                                <div class="center-divider"></div>
+                                <p><strong>性別：</strong>${data.gender || '未知'}</p>
+                                <p><strong>時辰：</strong>${data.timeRange || '未知'}</p>
+                                <div class="center-divider"></div>
+                                <p><strong>星座：</strong>${data.sign || ''}</p>
+                                <p><strong>生肖：</strong>${data.zodiac || ''}</p>
+                                <p><strong>五行局：</strong>${data.fiveElementsClass || ''}</p>
+                                <div class="center-divider"></div>
+                                <p><strong>命主：</strong>${data.soul || ''}</p>
+                                <p><strong>身主：</strong>${data.body || ''}</p>
+                            </div>
+                        </td>`;
+                    }
+                    continue;
+                }
+
+                const palace = data.palaces ? data.palaces[palaceIndex] : null;
+                
+                html += '<td>';
+                
+                // 宮位頭部
+                html += '<div class="palace-header">';
+                html += `<div class="palace-name${palace && palace.isBodyPalace ? ' body-palace' : ''}">${palace ? palace.name : palaceNames[palaceIndex]}</div>`;
+                if (palace && palace.decadalRange) {
+                    html += `<div class="palace-decadal">${palace.decadalRange}</div>`;
+                }
+                html += '</div>';
+                
+                if (palace) {
+                    html += `<div class="palace-branch">${palace.earthlyBranch || ''} ${palace.heavenlyStem || ''}</div>`;
+                    html += '<div class="stars-section">';
+                    
+                    // 主星
+                    if (palace.majorStars && palace.majorStars.length > 0) {
+                        html += '<div class="star-group">';
+                        palace.majorStars.forEach(starStr => {
+                            const { name, brightness } = parseStarName(starStr);
+                            const brightnessClass = brightness ? getBrightnessClass(brightness) : '';
+                            html += `<span class="star-item star-major ${brightnessClass}" title="${brightness ? '亮度: ' + brightness : ''}">${name}${brightness ? ' ' + brightness : ''}</span>`;
+                        });
+                        html += '</div>';
+                    }
+                    
+                    // 輔星
+                    if (palace.minorStars && palace.minorStars.length > 0) {
+                        html += '<div class="star-group">';
+                        palace.minorStars.forEach(starStr => {
+                            const { name, brightness } = parseStarName(starStr);
+                            const brightnessClass = brightness ? getBrightnessClass(brightness) : '';
+                            html += `<span class="star-item star-minor ${brightnessClass}" title="${brightness ? '亮度: ' + brightness : ''}">${name}${brightness ? ' ' + brightness : ''}</span>`;
+                        });
+                        html += '</div>';
+                    }
+                    
+                    // 四化
+                    if (palace.mutagens && palace.mutagens.length > 0) {
+                        html += '<div class="star-group">';
+                        palace.mutagens.forEach(mutagen => {
+                            html += `<span class="star-item star-mutagen" title="四化">${mutagen}</span>`;
+                        });
+                        html += '</div>';
+                    }
+                    
+                    html += '</div>';
+                }
+                
+                html += '</td>';
+            }
+            html += '</tr>';
+        }
+        
+        html += '</table>';
+        container.innerHTML = html;
+        console.log("星盤渲染完成");
+    }
+
     document.getElementById("reportForm").addEventListener("submit", async function(e) {
         e.preventDefault();
         
         const btn = document.getElementById("generateBtn");
-        btn.innerText = "生成中...";
+        btn.innerHTML = "<span style='opacity:0.7'>⏳</span> 解析命盤中...";
         btn.disabled = true;
+        document.getElementById("downloadBtn").style.display = "none";
+        document.getElementById("previewArea").style.display = "none";
         
         const formData = new FormData(e.target);
-        
-        // 轉換請求數據
         const reqBody = {
             date_str: formData.get("date_str"),
             time_index: parseInt(formData.get("time_index")),
@@ -210,6 +903,34 @@ INDEX_HTML = """<!DOCTYPE html>
             if (res.ok) {
                 markdownContent = await res.text();
                 document.getElementById("preview").innerText = markdownContent;
+                
+                // 嘗試解析星盤數據（如果後端返回 JSON）
+                try {
+                    console.log("正在獲取星盤數據...");
+                    const jsonRes = await fetch("/api/astrolabe", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(reqBody)
+                    });
+                    
+                    console.log("API 響應狀態:", jsonRes.status);
+                    
+                    if (jsonRes.ok) {
+                        astrolabeData = await jsonRes.json();
+                        console.log("星盤數據:", astrolabeData);
+                        renderAstrolabe(astrolabeData);
+                        console.log("星盤渲染完成");
+                    } else {
+                        const errorText = await jsonRes.text();
+                        console.error("API 錯誤:", errorText);
+                    }
+                } catch (err) {
+                    console.error("星盤數據獲取失敗:", err);
+                    console.log("僅顯示文字報告");
+                }
+                
                 document.getElementById("previewArea").style.display = "block";
                 document.getElementById("downloadBtn").style.display = "block";
             } else {
@@ -219,7 +940,7 @@ INDEX_HTML = """<!DOCTYPE html>
         } catch (error) {
             alert("網絡錯誤: " + error.message);
         } finally {
-            btn.innerText = "生成分析報告";
+            btn.innerHTML = "🔮 生成深度解析";
             btn.disabled = false;
         }
     });
@@ -243,4 +964,5 @@ INDEX_HTML = """<!DOCTYPE html>
 </script>
 </body>
 </html>
+
 """

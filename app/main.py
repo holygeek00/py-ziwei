@@ -40,17 +40,7 @@ async def root():
 @app.get("/report")
 async def report_page():
     """排盘界面"""
-    index_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "public", "index.html")
-    
-    # 尝试读取文件内容
-    if os.path.exists(index_path):
-        try:
-            with open(index_path, "r", encoding="utf-8") as f:
-                content = f.read()
-            return HTMLResponse(content=content)
-        except Exception:
-            pass
-    
-    # 降级到旧的 HTML
+    # 直接返回 ui_html.py 中的 HTML 内容
     from app.api.ui_html import INDEX_HTML
+    from fastapi.responses import HTMLResponse
     return HTMLResponse(content=INDEX_HTML)
