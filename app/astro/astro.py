@@ -9,7 +9,7 @@ from app.core.constants import (
     EARTHLY_BRANCHES_INFO, TIGER_RULE,
 )
 from app.core.types import Star, Palace, Decadal, Astrolabe
-from app.core.utils import fix_index
+from app.core.utils import fix_index, normalize_gender
 from app.core.calendar_utils import (
     get_heavenly_stem_and_earthly_branch, solar_to_lunar,
     lunar_to_solar, get_sign, get_zodiac_by_solar,
@@ -46,6 +46,7 @@ def by_solar(
     :param day_divide: current=晚子时算当天, forward=算来日
     :param algorithm: default=通行, zhongzhou=中州派
     """
+    gender = normalize_gender(gender)
     t_index = time_index
     if day_divide == "current" and t_index >= 12:
         t_index = 0

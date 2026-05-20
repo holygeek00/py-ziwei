@@ -13,6 +13,7 @@ from datetime import datetime
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.astro.astro import by_solar, by_lunar
+from app.core.utils import normalize_gender
 from app.astro.horoscope import get_horoscope_data
 from app.core.types import Astrolabe, Horoscope, Palace, Star, HoroscopeItem
 from app.core.calendar_utils import solar_to_lunar, lunar_to_solar
@@ -30,8 +31,8 @@ def main():
 
     args = parser.parse_args()
 
-    gender = "male" if args.gender in ["男", "male"] else "female"
-    
+    gender = normalize_gender(args.gender)
+
     try:
         if args.type == "lunar":
             astrolabe = by_lunar(args.date, args.time, gender, is_leap_month=args.leap)

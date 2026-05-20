@@ -106,3 +106,16 @@ def time_to_index(hour: int) -> int:
 def init_stars() -> list[list]:
     """初始化12个空列表，用于放置星耀"""
     return [[] for _ in range(12)]
+
+
+def normalize_gender(gender: str) -> str:
+    """
+    统一性别为「男」或「女」。
+    支持 male/female 及常见英文写法，供 API、CLI 与排盘逻辑共用。
+    """
+    key = gender.strip().lower()
+    if key in ("男", "male", "m"):
+        return "男"
+    if key in ("女", "female", "f"):
+        return "女"
+    raise ValueError(f"无效的性别: {gender!r}，请使用 男/女 或 male/female")
